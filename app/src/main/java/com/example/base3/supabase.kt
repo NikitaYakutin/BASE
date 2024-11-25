@@ -6,6 +6,8 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 const val key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsanVzbW9pZHRjbm5zdGl0ZHFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIyNjcxNDEsImV4cCI6MjA0Nzg0MzE0MX0.NROSMZ8Iq46LGA8uACuk_arfjCHgH94GnbxcbcnwvOQ"
 const val url = "https://wljusmoidtcnnstitdqh.supabase.co"
@@ -17,50 +19,53 @@ val supaClient = createSupabaseClient(
     install(Postgrest)
 }
 
+fun translateTimeToSupabase(): String {
+    val now = ZonedDateTime.now(ZoneId.of("UTC"))
+    return "${now.year}-${now.monthValue}-${now.dayOfMonth} ${now.hour}:${now.minute}:${now.second}+00"
+}
+
+fun translateTimeToKotlin(supaTime: String): String {
+    return ZonedDateTime.parse(supaTime).withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime().toString()
+}
+
 @Serializable
 data class User (
-    @SerialName("user_id") val id: Int,
+    @SerialName("user_id") val id: Int? = null,
     @SerialName("name") val name: String,
     @SerialName("email") val email: String,
     @SerialName("password") val password: String,
     @SerialName("created_at") val createdAt: String,
-    @SerialName("access_level") val accessLevel: Int
+    @SerialName("access_level") val accessLevel: Int = 0
 )
 
 suspend fun getUsers(): List<User> {
     return supaClient.from("users").select().decodeList<User>()
 }
 
-suspend fun addUserIfNotExists(email: String, password: String, name: String): Boolean {
+suspend fun isUserExists(email: String): Boolean {
+    var isOk: Boolean = true
+    try {
+        val existingUser = supaClient.from("users").select(Columns.raw("email")) {
+            filter { eq("email", email) }
+        }.decodeSingleOrNull<User>()
+
+        isOk = existingUser != null
+
+    } catch (e: Exception) {
+        println("Ошибка проверки существования пользователя: ${e.message}")
+    }
+    return isOk
+}
+
+suspend fun addUser(user: User): Boolean {
     return try {
-        val existingUser = supaClient.from("users")
-            .select {
-                filter { eq("email", email) }
-            }
-            .decodeAs<List<Map<String, String>>>()
-
-        if (!existingUser.isNullOrEmpty()) {
-            // Пользователь с таким email уже существует
-            return false
-        }
-
-        // Добавляем нового пользователя
-        supaClient.from("users").insert(
-            mapOf(
-                "email" to email,
-                "password" to password,
-                "name" to name,
-                "access_level" to 0,
-            )
-        )
+        supaClient.from("users").insert(user)
         true
     } catch (e: Exception) {
-        // Обрабатываем возможные ошибки
-        println("Error: ${e.message}")
+        println("Ошибка добавления пользователя: ${e.message}")
         false
     }
 }
-
 
 suspend fun loginUser(email: String, password: String): Boolean {
     return try {
