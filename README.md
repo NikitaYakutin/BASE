@@ -3,7 +3,7 @@
 Table Editor -> New table -> users
 
 
-Поля табилцы
+Поля таблицы:
 
 
 ![image](https://github.com/user-attachments/assets/17cb7c55-7fba-4032-83bc-18e5f3ce683c)
