@@ -9,8 +9,8 @@ import kotlinx.serialization.Serializable
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-const val key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsanVzbW9pZHRjbm5zdGl0ZHFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIyNjcxNDEsImV4cCI6MjA0Nzg0MzE0MX0.NROSMZ8Iq46LGA8uACuk_arfjCHgH94GnbxcbcnwvOQ"
-const val url = "https://wljusmoidtcnnstitdqh.supabase.co"
+const val key = ""
+const val url = ""
 
 val supaClient = createSupabaseClient(
     supabaseUrl = url,
