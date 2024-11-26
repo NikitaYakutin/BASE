@@ -246,11 +246,12 @@ class MainActivity : ComponentActivity() {
             Column(Modifier.fillMaxSize()) {
                 // Добавляем заголовок
                 Text(
-                    text = "Зарегистрированные пользователи",
+                    text = "Вы вошли",
 
                     modifier = Modifier
                         .padding(15.dp)
-                        .align(Alignment.CenterHorizontally) // Центрируем текст
+                        .align(Alignment.CenterHorizontally) 
+                    // Центрируем текст
                 )
             LazyColumn(Modifier.padding(15.dp).weight(1f)) {
                 items(users) { user ->
@@ -268,9 +269,7 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(5.dp)
                         ) {
-                            Text(text = "${user.id} - ${user.name} - ${user.email}")
-                            Text(text = "Access level: ${user.accessLevel}", fontStyle = FontStyle.Italic)
-                            Text(text = "Created at: ${translateTimeToKotlin(user.createdAt)}")
+
                         }
                     }
                     Spacer(Modifier.height(4.dp))
